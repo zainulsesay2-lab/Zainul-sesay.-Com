@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MMTU Admission Portal - V5.0 FINAL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#0b2a4a;color:white}
+.top{background:#c00;padding:10px;text-align:center;font-weight:bold;font-size:14px}
+.hero{padding:25px 15px;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800');background-size:cover}
+.login-card{background:white;color:#333;border-radius:15px;padding:20px;margin:15px;border-top:6px solid #0a7a42;box-shadow:0 10px 20px rgba(0,0,0,.3)}
+label{font-weight:bold;font-size:14px;display:block;margin:12px 0 5px}
+input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;outline:none}
+input[type=file]{padding:6px}
+.btn{width:100%;background:#0b2a4a;color:white;padding:14px;border:none;border-radius:8px;font-weight:bold;font-size:16px;margin-top:15px;cursor:pointer}
+.btn-green{background:#0a7a42}.btn-orange{background:#ff6600}
+.tabs{display:flex;gap:8px;margin-top:10px}.tabs button{flex:1;padding:11px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+.hidden{display:none}
+.box{background:white;color:#333;border-radius:12px;padding:20px;margin:15px}
+.badge{padding:5px 10px;border-radius:20px;font-size:12px;font-weight:bold}
+.pending{background:#fff3cd;color:#856404}.accepted{background:#d4edda;color:#155724}.rejected{background:#f8d7da;color:#721c24}
+table{width:100%;border-collapse:collapse;margin-top:10px}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;font-size:13px;vertical-align:top}th{background:#0b2a4a;color:white}
+.doc-btn{background:#0b2a4a;color:white;border:none;padding:5px 8px;border-radius:5px;font-size:12px;margin:2px;cursor:pointer}
+.doc-btn.green{background:#0a7a42}.doc-btn.orange{background:#ff6600}.doc-btn:disabled{background:#ccc;cursor:not-allowed}
+.req{color:red}.steps{background:#0a1e35;border-radius:15px;padding:15px;margin:15px}.step{display:flex;gap:12px;background:#122a4a;padding:15px;border-radius:10px;margin-bottom:12px}.num{width:40px;height:40px;background:#0a7a42;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="top">📢 ADMISSION OPEN 2026/2027 - PIN NLe 570 - Orange Money / Qcell Money / Afrimoney / Bank</div>
+<div id="homeScreen">
+  <div class="hero">
+    <span style="background:#0a7a42;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:bold">ADMISSION PORTAL V5.0 FINAL</span>
+    <h1 style="margin-top:15px">Your Future.<br>Our Mission.</h1>
+    <p style="margin-top:10px">Milton Margai Technical University - Official Admission Portal</p>
+    <p style="font-size:12px;opacity:.8;margin-top:5px">Backend: <span id="backendStatus">Checking...</span></p>
+  </div>
+  <div class="login-card">
+    <div style="text-align:center;font-size:50px">🎓</div><h2 style="text-align:center">APPLICANT LOGIN</h2>
+    <div class="tabs"><button onclick="showTab('loginTab')" style="background:#0b2a4a;color:white">Login</button><button onclick="showTab('buyTab')" style="background:#ffcc00">Buy PIN</button><button onclick="showTab('adminTab')" style="background:#eee">Admin</button></div>
+    <!-- REQ 3,4,5,6: TRIPLE LOGIN -->
+    <div id="loginTab">
+      <label>1. Mobile Number <span class="req">*</span> <small>(Same number you used for payment)</small></label><input id="phone" placeholder="e.g. 076..., 033..., 077...">
+      <label>2. Transaction ID <span class="req">*</span> <small>(Same ID from SMS)</small></label><input id="transId" placeholder="e.g. OM..., QM..., AM...">
+      <label>3. Application PIN <span class="req">*</span> <small>(Sent by Admin via SMS)</small></label><input id="pin" type="password" placeholder="MMTUXXXXXX">
+      <button class="btn" onclick="applicantLogin()">VERIFY ALL 3 & LOGIN</button>
+      <p id="loginMsg" style="color:red;text-align:center;margin-top:8px"></p>
+      <p style="text-align:center;font-size:12px;margin-top:8px;color:#666">Phone + Transaction ID + PIN must ALL match Admin record.</p>
+      <p style="font-size:12px;background:#eef;padding:8px;border-radius:6px;margin-top:10px">💡 Qcell Money? Use QCell number (033...) + QM ID. Orange? Use Orange number (076...) + OM ID.</p>
+    </div>
+    <!-- REQ 2: BUY PIN - Orange + Qcell -->
+    <div id="buyTab" class="hidden">
+      <h3>Step 1: Pay NLe 570 - Choose Payment Method</h3>
+      <label>Payment Method <span class="req">*</span></label>
+      <select id="payMethod" onchange="updatePayInstructions()">
+        <option value="Orange Money">🟠 Orange Money - *144#</option>
+        <option value="Qcell Money">🟣 Qcell Money (QMoney) - *323#</option>
+        <option value="Afrimoney">🔵 Afrimoney - *161#</option>
+        <option value="Bank">🏦 Sierra Leone Commercial Bank</option>
+      </select>
+      <div id="payInstructions" style="background:#fff3e0;border:1px solid #ff6600;padding:12px;border-radius:8px;margin-top:10px;font-size:14px;line-height:1.6"></div>
+      <label>Phone Used for Payment <span class="req">*</span></label><input id="buyPhone" placeholder="076... / 033... / 077...">
+      <label>Transaction ID <span class="req">*</span></label><input id="buyTrans" placeholder="OM... / QM... / AM...">
+      <button class="btn btn-orange" onclick="requestPin()">Submit For Admin Confirmation</button><p id="buyMsg"></p>
+    </div>
+    <!-- FIXED ADMIN - NO CREATE ACCOUNT -->
+    <div id="adminTab" class="hidden">
+      <label>Admin Email</label><input id="adminEmail" value="Zainulsesay2@gmail.com" readonly style="background:#f0f0f0">
+      <label>Password</label><input id="adminPass" type="password" placeholder="Enter Admin Password">
+      <button class="btn" onclick="adminLogin()">Login as Admin</button>
+      <p style="text-align:center;font-size:12px;color:#666;margin-top:10px">🔒 Admin account is fixed. No new admin can be created.</p>
+    </div>
+  </div>
+  <div class="box"><h3 style="color:#c00">📢 BANK & PIN INFO</h3><p style="margin-top:8px">Bank: <b>Sierra Leone Commercial Bank</b> | Amount: <b>NLe 570</b><br>Orange Money: 076 123 456 | Qcell Money: 033 123 456 | Afrimoney: 077 123 456</p></div>
+  <div class="steps"><h2 style="color:#ffcc00;margin-bottom:15px">APPLICATION STEPS</h2>
+    <div class="step"><div class="num">1</div><div><h3>Buy PIN</h3><p>Pay NLe 570 via Orange / Qcell Money, submit Transaction ID</p></div></div>
+    <div class="step"><div class="num">2</div><div><h3>Admin Confirms</h3><p>Admin confirms & generates PIN, sends via SMS</p></div></div>
+    <div class="step"><div class="num">3</div><div><h3>Triple Login</h3><p>Login with Phone + Transaction ID + PIN</p></div></div>
+    <div class="step"><div class="num">4</div><div><h3>Fill Form & Upload</h3><p>Fill all required + upload WASSCE & Birth Cert - No Duplicate Allowed</p></div></div>
+    <div class="step"><div class="num">5</div><div><h3>Get Acceptance Letter</h3><p>Admin uploads letter, you download it</p></div></div>
+  </div>
+  <p style="text-align:center;font-size:13px;opacity:.7;padding-bottom:20px">© 2026 MMTU | Built by SIERRA TECH</p>
+</div>
+
+<!-- APPLICANT DASHBOARD -->
+<div id="applicantDash" class="hidden" style="background:#f0f2f5;min-height:100vh;color:#333">
+  <div style="background:#0b2a4a;color:white;padding:20px"><h2>Welcome, <span id="appName"></span></h2><p>Phone: <span id="appPhone"></span> | TransID: <span id="appTrans"></span> | PIN: <span id="appPinShow"></span></p><button onclick="logout()" style="background:red;color:white;border:none;padding:8px 15px;border-radius:6px;margin-top:10px">Logout</button></div>
+  <div class="box">
+    <h3>Status: <span id="appStatus" class="badge pending">PENDING</span></h3><p style="margin-top:10px">Course: <b id="appCourse">-</b></p>
+    <div id="letterBox" class="hidden" style="background:#d4edda;padding:15px;border-radius:8px;margin-top:10px"><h3>🎉 CONGRATULATIONS! You are ACCEPTED!</h3><p>Course: <b id="letterCourse"></b></p><div id="letterReady" class="hidden"><p style="color:green;font-weight:bold">✅ Your Acceptance Letter is ready!</p><button class="btn btn-green" onclick="viewMyLetter()">📄 View / Download Acceptance Letter</button></div><div id="letterWaiting"><p style="color:#856404">⏳ Waiting for Admin to upload your Acceptance Letter.</p></div></div>
+    <div id="rejectBox" class="hidden" style="background:#f8d7da;padding:15px;border-radius:8px;margin-top:10px"><h3>Application Not Successful</h3><p>Visit Dean for alternate course.</p></div>
+  </div>
+  <!-- REQ 7: FULL FORM -->
+  <div class="box"><h3>Application Form - Fill All Required Fields</h3>
+    <label>First Name <span class="req">*</span></label><input id="fFirst" placeholder="e.g. ZAINUL">
+    <label>Middle Name</label><input id="fMiddle" placeholder="e.g. MOHAMED">
+    <label>Surname <span class="req">*</span></label><input id="fSurname" placeholder="e.g. SESAY">
+    <label>WASSCE Index Number <span class="req">*</span></label><input id="fIndex" placeholder="e.g. 1234567890">
+    <label>Date of Birth</label><input type="date" id="fDob">
+    <label>Address (Village / Town) <span class="req">*</span></label><input id="fAddress" placeholder="e.g. Wellington, Freetown">
+    <label>Are you Able or Disabled? <span class="req">*</span></label><select id="fDisability"><option value="Able">Able</option><option value="Disabled">Disabled</option></select>
+    <label>Choose Course</label><select id="fCourse"><option>Computer Science</option><option>Nursing</option><option>Business Administration</option><option>Engineering</option><option>Education</option><option>Public Health</option><option>Medicine</option></select>
+    <hr style="margin:15px 0"><h3>Financer (Person Paying Your Fees)</h3>
+    <label>Financer Full Name</label><input id="fFinName" placeholder="e.g. Mr. Sesay">
+    <label>Financer Phone Number</label><input id="fFinPhone" placeholder="076...">
+    <label>Financer Occupation</label><input id="fFinOcc" placeholder="e.g. Teacher / Business">
+    <hr style="margin:15px 0"><h3>Documents Upload</h3>
+    <label>WASSCE Result (Picture / PDF) <span class="req">* MUST - Else No Submit</span></label><input type="file" id="fWassce" accept="image/*,.pdf" onchange="previewFile('fWassce','previewWassce')"><img id="previewWassce" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;display:none">
+    <label>Birth Certificate (Picture / PDF) <span class="req">* MUST - Else No Submit</span></label><input type="file" id="fBirth" accept="image/*,.pdf" onchange="previewFile('fBirth','previewBirth')"><img id="previewBirth" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;display:none">
+    <label>National ID Card (Picture / PDF)</label><input type="file" id="fNid" accept="image/*,.pdf" onchange="previewFile('fNid','previewNid')"><img id="previewNid" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;display:none">
+    <button class="btn" onclick="submitApplication()">Submit Application</button><p id="submitMsg"></p>
+  </div>
+</div>
+
+<!-- ADMIN - 3 SHEETS -->
+<div id="adminDash" class="hidden" style="background:#f0f2f5;min-height:100vh;color:#333">
+  <div style="background:#0b2a4a;color:white;padding:20px"><h2>Admin - MMTU V5.0</h2><p id="adminEmailShow"></p><button onclick="logout()" style="background:red;color:white;border:none;padding:8px 15px;border-radius:6px;margin-top:10px">Logout</button></div>
+  <div class="tabs" style="padding:15px"><button onclick="showAdminSheet('sheetPin')" style="background:#ff6600;color:white">1. Pin Requests</button><button onclick="showAdminSheet('sheetFees')" style="background:#0a7a42;color:white">2. Application Fees</button><button onclick="showAdminSheet('sheetApps')" style="background:#0b2a4a;color:white">3. Applications</button></div>
+  <div id="sheetPin" class="box"><h3>Sheet 1: PIN Requests - Confirm to Auto-Generate PIN</h3><p style="font-size:13px;color:#666">Admin: Verify payment in Orange/Qcell App, then click CONFIRM. System generates PIN. Send PIN via SMS.</p><div id="pinList"></div></div>
+  <div id="sheetFees" class="box hidden"><h3>Sheet 2: Application Fees</h3><p>Total Requests: <b id="feeTotal">0</b> | Confirmed: <b id="feeConfirmed">0</b> | Pending: <b id="feePending">0</b></p><p>Total Collected (NLe 570 x Confirmed): <b id="feeAmount" style="color:green">NLe 0</b></p><div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap"><div style="background:#ffe0b2;padding:12px;border-radius:8px;flex:1;text-align:center"><b>🟠 Orange Money</b><br><span id="feeOrange">0</span> payments<br><small>NLe <span id="feeOrangeAmt">0</span></small></div><div style="background:#e8d5ff;padding:12px;border-radius:8px;flex:1;text-align:center"><b>🟣 Qcell Money</b><br><span id="feeQcell">0</span> payments<br><small>NLe <span id="feeQcellAmt">0</span></small></div><div style="background:#e3f2fd;padding:12px;border-radius:8px;flex:1;text-align:center"><b>🔵 Afrimoney</b><br><span id="feeAfri">0</span> payments</div></div><table><thead><tr><th>Phone</th><th>Trans ID</th><th>Method</th><th>Status</th><th>PIN</th><th>Amount</th></tr></thead><tbody id="feeTable"></tbody></table></div>
+  <div id="sheetApps" class="box hidden"><h3>Sheet 3: Applications</h3><input id="searchAdmin" placeholder="Search name / phone / index..." onkeyup="renderAdmin()"><div style="overflow-x:auto"><table><thead><tr><th>Name / Address</th><th>Phone / Index / Trans</th><th>Course</th><th>Financer</th><th>Documents</th><th>Status / Letter</th><th>Action / Upload Letter</th></tr></thead><tbody id="adminTable"></tbody></table></div></div>
+</div>
+
+<!-- DOCUMENT VIEWER -->
+<div id="docModal" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:9999;flex-direction:column">
+  <div style="background:#0b2a4a;color:white;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><h3 id="docTitle">Document</h3><div style="display:flex;gap:8px"><button onclick="downloadDoc()" style="background:#0a7a42;color:white;border:none;padding:8px 15px;border-radius:6px;font-weight:bold">⬇ Download</button><button onclick="printDoc()" style="background:#ff6600;color:white;border:none;padding:8px 15px;border-radius:6px;font-weight:bold">🖨 Print</button><button onclick="closeDoc()" style="background:red;color:white;border:none;padding:8px 15px;border-radius:6px;font-weight:bold">✕ Close</button></div></div>
+  <div id="docContent" style="flex:1;overflow:auto;padding:15px;text-align:center;background:#222"></div>
+  <div style="background:white;color:#333;padding:12px;text-align:center;font-size:13px">Applicant: <b id="docApplicant"></b> | <span id="docInfo"></span></div>
+</div>
+
+<script>
+const API = "https://mmtu-backend.onrender.com";
+let currentApp=null, adminToken=localStorage.getItem('mmtu_token'), allApps=[], allPins=[];
+let currentDocData="", currentDocName="";
+fetch(API+'/',{}).then(()=>{backendStatus.innerText="🟢 Backend Online"; backendStatus.style.color="#00ff00"}).catch(()=>{backendStatus.innerText="🔴 Backend Offline - Check Render"; backendStatus.style.color="red"});
+const PAY_INFO = {
+  "Orange Money":{ussd:"*144#", account:"076 123 456", name:"MMTU Admission", steps:"Dial *144# → Send Money → Enter 076 123 456 → Amount NLe 570 → Enter PIN → Copy Transaction ID (OM...)"},
+  "Qcell Money":{ussd:"*323#", account:"033 123 456", name:"MMTU Admission", steps:"Dial *323# → Send Money → Enter 033 123 456 → Amount NLe 570 → Enter QMoney PIN → Copy Transaction ID (QM...). Or use QM Salone App."},
+  "Afrimoney":{ussd:"*161#", account:"077 123 456", name:"MMTU Admission", steps:"Dial *161# → Send Money → Enter 077 123 456 → Amount NLe 570 → Enter PIN → Copy Transaction ID"},
+  "Bank":{ussd:"Visit Branch", account:"SLCB 0012345678", name:"Milton Margai Technical University", steps:"Go to SLCB → Deposit NLe 570 to Account 0012345678 → Keep Slip → Transaction ID = Slip Number"}
+};
+window.updatePayInstructions=()=>{ let m=payMethod.value; let info=PAY_INFO[m]; payInstructions.innerHTML=`<b>${m}</b><br>📱 Dial: <b>${info.ussd}</b><br>💰 Send <b>NLe 570</b> to: <b>${info.account}</b> (${info.name})<br>📝 Steps: ${info.steps}`; };
+updatePayInstructions();
+window.showTab=(id)=>{ ['loginTab','buyTab','adminTab'].forEach(x=>document.getElementById(x).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+window.showAdminSheet=(id)=>{ ['sheetPin','sheetFees','sheetApps'].forEach(x=>document.getElementById(x).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+window.adminLogin=async()=>{ let r=await fetch(API+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:adminEmail.value,password:adminPass.value})}); let d=await r.json(); if(!d.success) return alert(d.message); localStorage.setItem('mmtu_token',d.token); adminToken=d.token; homeScreen.classList.add('hidden'); adminDash.classList.remove('hidden'); adminEmailShow.innerText=adminEmail.value; loadAdmin(); }
+window.requestPin=async()=>{ if(!buyPhone.value||!buyTrans.value) return alert("Enter Phone + Transaction ID"); let r=await fetch(API+'/api/request-pin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:buyPhone.value.trim(), transId:buyTrans.value.trim(), method:payMethod.value})}); let d=await r.json(); buyMsg.innerText=d.success?"✅ Sent via "+payMethod.value+"! Wait for Admin to confirm & send PIN via SMS":"❌ "+d.message; }
+window.applicantLogin=async()=>{
+  loginMsg.innerText="Checking Phone + TransID + PIN...";
+  let r=await fetch(API+'/api/applicant-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone.value.trim(), transId:transId.value.trim(), pin:pin.value.trim()})});
+  let d=await r.json(); if(!d.success) return loginMsg.innerText="❌ "+d.message;
+  currentApp=d.applicant; homeScreen.classList.add('hidden'); applicantDash.classList.remove('hidden');
+  appName.innerText=(currentApp.firstName+" "+(currentApp.middleName||"")+" "+currentApp.surname)||"Applicant"; appPhone.innerText=currentApp.phone; appTrans.innerText=currentApp.transId; appPinShow.innerText=currentApp.pin; appCourse.innerText=currentApp.course||"Not yet applied";
+  if(currentApp.firstName){ fFirst.value=currentApp.firstName; fMiddle.value=currentApp.middleName||""; fSurname.value=currentApp.surname; fIndex.value=currentApp.wassceIndex||""; fDob.value=currentApp.dob||""; fAddress.value=currentApp.address||""; fDisability.value=currentApp.disability||"Able"; fCourse.value=currentApp.course||"Computer Science"; fFinName.value=currentApp.financerName||""; fFinPhone.value=currentApp.financerPhone||""; fFinOcc.value=currentApp.financerOccupation||""; }
+  updateBadge(currentApp.status);
+}
+function updateBadge(s){ appStatus.innerText=s; appStatus.className='badge '+(s==='ACCEPTED'?'accepted':s==='REJECTED'?'rejected':'pending'); letterBox.classList.toggle('hidden', s!=='ACCEPTED'); rejectBox.classList.toggle('hidden', s!=='REJECTED'); if(s==='ACCEPTED'){ letterCourse.innerText=currentApp.course||""; if(currentApp.acceptanceLetterFile){ letterReady.classList.remove('hidden'); letterWaiting.classList.add('hidden'); } else { letterReady.classList.add('hidden'); letterWaiting.classList.remove('hidden'); } } }
+function fileToBase64(id){ return new Promise(res=>{ let f=document.getElementById(id).files[0]; if(!f) return res(""); let r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f); }); }
+window.previewFile=(inputId, imgId)=>{ let file=document.getElementById(inputId).files[0]; if(!file) return; if(file.type==="application/pdf"){ document.getElementById(imgId).style.display="none"; return; } let reader=new FileReader(); reader.onload=e=>{ let img=document.getElementById(imgId); img.src=e.target.result; img.style.display="block"; }; reader.readAsDataURL(file); }
+window.submitApplication=async()=>{
+  if(!fFirst.value.trim()||!fSurname.value.trim()) return submitMsg.innerText="❌ First Name + Surname are REQUIRED";
+  if(!fIndex.value.trim()) return submitMsg.innerText="❌ WASSCE Index Number is REQUIRED";
+  if(!fAddress.value.trim()) return submitMsg.innerText="❌ Address is REQUIRED";
+  if(!fWassce.files[0] && !currentApp.wassceFile) return submitMsg.innerText="❌ WASSCE Result MUST be uploaded (Picture/PDF)";
+  if(!fBirth.files[0] && !currentApp.birthCertFile) return submitMsg.innerText="❌ Birth Certificate MUST be uploaded (Picture/PDF)";
+  submitMsg.innerText="Checking for duplicate... Please wait..."; submitMsg.style.color="blue";
+  let wassceFile=currentApp.wassceFile||"", birthFile=currentApp.birthCertFile||"", nidFile=currentApp.nationalIdFile||"";
+  if(fWassce.files[0]) wassceFile=await fileToBase64('fWassce');
+  if(fBirth.files[0]) birthFile=await fileToBase64('fBirth');
+  if(fNid.files[0]) nidFile=await fileToBase64('fNid');
+  let r=await fetch(API+`/api/applicants/${currentApp._id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:fFirst.value.trim(), middleName:fMiddle.value.trim(), surname:fSurname.value.trim(), wassceIndex:fIndex.value.trim(), dob:fDob.value, address:fAddress.value.trim(), disability:fDisability.value, course:fCourse.value, financerName:fFinName.value.trim(), financerPhone:fFinPhone.value.trim(), financerOccupation:fFinOcc.value.trim(), wassceFile, birthCertFile:birthFile, nationalIdFile:nidFile})});
+  let d=await r.json();
+  if(!d.success){ submitMsg.style.color="red"; submitMsg.innerText=d.message; if(d.message.includes("already been used")||d.message.includes("already used")) alert("⛔ DUPLICATE BLOCKED\n\n"+d.message+"\n\nYou cannot submit same details twice."); return; }
+  submitMsg.style.color="green"; submitMsg.innerText="✅ Application Submitted! Admin will review."; currentApp=d.applicant; appCourse.innerText=d.applicant.course;
+}
+async function loadAdmin(){
+  let r=await fetch(API+'/api/pin-requests',{headers:{'Authorization':'Bearer '+adminToken}}); allPins=await r.json();
+  pinList.innerHTML=allPins.map(p=>`<div style="border:1px solid #ccc;padding:12px;margin:8px 0;border-radius:8px"><b>Phone:</b> ${p.phone} | <b>Method:</b> <span style="background:${p.method==='Qcell Money'?'#e8d5ff':p.method==='Orange Money'?'#ffe0b2':'#e3f2fd'};padding:3px 8px;border-radius:10px;font-weight:bold">${p.method||"Orange Money"}</span><br><b>Trans ID:</b> ${p.transId} | <b>Sent To:</b> ${p.schoolAccount||"-"} | <b>Status:</b> ${p.status} ${p.generatedPin?`<br><b style="color:green">PIN: ${p.generatedPin}</b> - SEND VIA SMS TO ${p.phone}`:""} ${p.status==="Pending"?`<br><button onclick="confirmPin('${p._id}')" style="background:green;color:white;border:none;padding:9px 15px;border-radius:6px;margin-top:6px;font-weight:bold">✓ CONFIRM ${p.method} PAYMENT & GENERATE PIN</button><br><small>Check ${p.method} SMS/App for ${p.transId} before confirming</small>`:""}</div>`).join("")||"No PIN requests yet";
+  let fr=await fetch(API+'/api/fees-summary',{headers:{'Authorization':'Bearer '+adminToken}}); let fs=await fr.json();
+  feeTotal.innerText=fs.totalRequests; feeConfirmed.innerText=fs.confirmed; feePending.innerText=fs.pending; feeAmount.innerText="NLe "+fs.totalAmount.toLocaleString();
+  feeOrange.innerText=fs.orange||0; feeOrangeAmt.innerText=(fs.orange||0)*570; feeQcell.innerText=fs.qcell||0; feeQcellAmt.innerText=(fs.qcell||0)*570; feeAfri.innerText=fs.afri||0;
+  feeTable.innerHTML=allPins.map(p=>`<tr><td>${p.phone}</td><td>${p.transId}</td><td><b>${p.method||"Orange Money"}</b></td><td>${p.status}</td><td>${p.generatedPin||"-"}</td><td>NLe ${p.amount||570}</td></tr>`).join("");
+  let ar=await fetch(API+'/api/applicants',{headers:{'Authorization':'Bearer '+adminToken}}); allApps=await ar.json(); renderAdmin();
+}
+window.confirmPin=async(id)=>{ if(!confirm("Confirm you received NLe 570 for this Transaction ID?")) return; let r=await fetch(API+`/api/pin-requests/${id}/confirm`,{method:'POST',headers:{'Authorization':'Bearer '+adminToken}}); let d=await r.json(); if(d.success) alert("✅ PIN GENERATED: "+d.pin+"\nPhone: "+d.phone+"\n\nNOW SEND THIS PIN VIA SMS/WhatsApp TO APPLICANT."); loadAdmin(); }
+window.renderAdmin=()=>{
+  let q=(searchAdmin.value||"").toLowerCase();
+  let f=allApps.filter(a=>((a.firstName||"")+(a.surname||"")+a.phone+(a.wassceIndex||"")).toLowerCase().includes(q));
+  adminTable.innerHTML=f.map(a=>`
+  <tr>
+    <td><b>${a.firstName||""} ${a.middleName||""} ${a.surname||""}</b><br><small>${a.address||""} | ${a.disability||""} | DOB: ${a.dob||"-"}</small><br><small style="color:green">Index: ${a.wassceIndex||"-"} - Unique ✅</small></td>
+    <td>${a.phone}<br><small>Index: ${a.wassceIndex||"-"}</small><br><small>Trans: ${a.transId||"-"}</small><br><small>PIN: ${a.pin||"-"}</small></td>
+    <td>${a.course||"-"}</td>
+    <td>${a.financerName||"-"}<br><small>${a.financerPhone||""}<br>${a.financerOccupation||""}</small></td>
+    <td><button class="doc-btn green" ${a.wassceFile?"":"disabled"} onclick="viewDoc('${a._id}','wassce')">📄 WASSCE</button><br><button class="doc-btn orange" ${a.birthCertFile?"":"disabled"} onclick="viewDoc('${a._id}','birth')">📄 Birth Cert</button><br><button class="doc-btn" ${a.nationalIdFile?"":"disabled"} onclick="viewDoc('${a._id}','nid')">🪪 Nat ID</button><br><small>${a.wassceFile?"✅":"❌"} WASSCE ${a.birthCertFile?"✅":"❌"} Birth ${a.nationalIdFile?"✅":"❌"} ID</small></td>
+    <td><span class="badge ${a.status==='ACCEPTED'?'accepted':a.status==='REJECTED'?'rejected':'pending'}">${a.status}</span><br><small>${a.acceptanceLetterFile?"✅ Letter Uploaded":"❌ No Letter Yet"}</small><br>${a.acceptanceLetterFile?`<button class="doc-btn green" onclick="viewDoc('${a._id}','letter')">👁 View Letter</button>`:""}</td>
+    <td><label style="font-size:11px;font-weight:bold">📤 Upload Acceptance Letter (Pic/PDF):</label><input type="file" id="letter-${a._id}" accept="image/*,.pdf" style="padding:4px;font-size:11px"><button onclick="uploadLetter('${a._id}')" style="background:#0a7a42;color:white;border:none;padding:7px 10px;border-radius:5px;margin-top:4px;width:100%;font-weight:bold">Upload Letter & Accept</button><button onclick="setStatus('${a._id}','ACCEPTED')" style="background:#0b2a4a;color:white;border:none;padding:5px 8px;border-radius:5px;margin-top:4px;width:100%">Accept Without Letter</button><button onclick="setStatus('${a._id}','REJECTED')" style="background:red;color:white;border:none;padding:5px 8px;border-radius:5px;margin-top:4px;width:100%">Reject</button></td>
+  </tr>`).join("");
+}
+window.uploadLetter=async(id)=>{ let input=document.getElementById('letter-'+id); if(!input.files[0]) return alert("❌ Select Acceptance Letter file first (Picture or PDF)"); let file=input.files[0]; let isPdf=file.type==="application/pdf"; let reader=new FileReader(); reader.onload=async(e)=>{ let r=await fetch(API+`/api/applicants/${id}/acceptance-letter`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+adminToken},body:JSON.stringify({acceptanceLetterFile:e.target.result, acceptanceLetterType:isPdf?"pdf":"image"})}); let d=await r.json(); if(d.success){ alert("✅ Acceptance Letter Uploaded! Student can now download it."); loadAdmin(); } else alert("❌ "+d.message); }; reader.readAsDataURL(file); }
+window.setStatus=async(id,s)=>{ await fetch(API+`/api/applicants/${id}/status`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+adminToken},body:JSON.stringify({status:s})}); loadAdmin(); alert("Applicant "+s); }
+window.viewDoc=(id,type)=>{ let a=allApps.find(x=>x._id===id); if(!a) return alert("Not found"); let data=type==='wassce'?a.wassceFile:type==='birth'?a.birthCertFile:type==='nid'?a.nationalIdFile:a.acceptanceLetterFile; let title=type==='wassce'?"WASSCE Result":type==='birth'?"Birth Certificate":type==='nid'?"National ID Card":"Acceptance Letter"; if(!data) return alert("No document"); currentDocData=data; currentDocName=`${a.firstName}_${a.surname}_${title.replace(/ /g,'_')}`; docTitle.innerText=title+" - "+a.firstName+" "+a.surname; docApplicant.innerText=a.firstName+" "+a.surname+" | Index: "+(a.wassceIndex||"-")+" | Phone: "+a.phone; let isPdf=data.startsWith("data:application/pdf"); if(isPdf){ docContent.innerHTML=`<iframe src="${data}" style="width:100%;height:100%;min-height:70vh;border:none;background:white"></iframe>`; docInfo.innerText="PDF Document"; } else { docContent.innerHTML=`<img src="${data}" style="max-width:100%;max-height:75vh;border:3px solid white;border-radius:8px">`; docInfo.innerText="Image Document"; } docModal.classList.remove('hidden'); docModal.style.display="flex"; }
+window.closeDoc=()=>{ docModal.classList.add('hidden'); docModal.style.display="none"; }
+window.downloadDoc=()=>{ let a=document.createElement('a'); a.href=currentDocData; a.download=currentDocName+(currentDocData.startsWith("data:application/pdf")?".pdf":".jpg"); a.click(); }
+window.printDoc=()=>{ let w=window.open('','_blank'); if(currentDocData.startsWith("data:application/pdf")){ w.document.write(`<iframe src="${currentDocData}" style="width:100%;height:100vh"></iframe>`); } else { w.document.write(`<img src="${currentDocData}" style="width:100%">`); } setTimeout(()=>w.print(),500); }
+window.viewMyLetter=()=>{ if(!currentApp.acceptanceLetterFile) return alert("Letter not uploaded yet"); let w=window.open('','_blank'); if(currentApp.acceptanceLetterFile.startsWith("data:application/pdf")){ w.document.write(`<iframe src="${currentApp.acceptanceLetterFile}" style="width:100%;height:100vh"></iframe>`); } else { w.document.write(`<div style="text-align:center;padding:20px"><h2>Acceptance Letter - ${currentApp.firstName} ${currentApp.surname}</h2><img src="${currentApp.acceptanceLetterFile}" style="max-width:100%"><br><button onclick="window.print()">Print Letter</button></div>`); } }
+window.logout=()=>{ localStorage.removeItem('mmtu_token'); location.reload(); }
+</script>
+</body>
+</html>
